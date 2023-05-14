@@ -37,7 +37,7 @@ CREATE TABLE user_profiles (
     birthday_date  TIMESTAMP WITH TIME ZONE,
     phone          TEXT
 );
-COMMENT ON TABLE user_profiles IS 'Public user profiles, editable by the users. These profiles are automatically created when user is registered in the system. Alternatively, you can use "user_metadata" in "auth.users"';
+COMMENT ON TABLE user_profiles IS 'Public user profiles, editable by the users. These profiles are automatically created when the user is registered in the system. Alternatively, you can use "user_metadata" in "auth.users"';
 
 --- ----------------------------------------------------------------------------
 --- Automatically change 'updated_at' when the profile is modified.
