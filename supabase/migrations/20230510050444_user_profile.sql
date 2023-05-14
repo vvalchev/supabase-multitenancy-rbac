@@ -72,8 +72,9 @@ CREATE OR REPLACE FUNCTION handle_new_user() RETURNS TRIGGER
   AS $$
   BEGIN
       RAISE NOTICE 'New User Profile Created: (%)', NEW.id;
-      INSERT INTO user_profiles (id) VALUES (NEW.id);
-      RETURN NEW;
+      INSERT INTO user_profiles (id, avatar_url) VALUES
+          (NEW.id, 'https://www.gravatar.com/avatar/' || md5(new.email) || '?d=mp');
+          RETURN NEW;
   END;
 $$;
 
