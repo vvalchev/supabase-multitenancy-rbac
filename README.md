@@ -3,6 +3,16 @@
 This is a template, that enables Supabase users to quickly create multi-tenant application
 with role-based security access.
 
+## Rationale
+
+I've started this project because I believe, that multi-tenancy is an important feature for
+small startups. It is very common to have a project where you want to host multiple tenants
+in the same database. And allowing them to have users, with different levels of access is
+another important feature.
+
+The third reason for having this project is that I wanted to make sure that everything
+is covered with appropriate test cases.
+
 ## Features
 
 * There are tenants
