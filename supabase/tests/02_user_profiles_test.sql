@@ -121,7 +121,7 @@ SELECT is(COUNT(*), 1::bigint, 'cannot see other tenant profiles')
 --- -----------------------------------------
 --- Cannot update another person's profile, if it is not from the same tenant.
 --- -----------------------------------------
---- updates don't fail with exception
+--- updates don't fail with exception, so you need to check if actual update happened
 UPDATE user_profiles SET title = 'Md.' WHERE id = test.user_id('user2@test.com');
 SELECT is(title, null, 'Cannot update another person profile, if it is not from the same tenant.')
     FROM user_profiles WHERE id = test.user_id('user2@test.com');
