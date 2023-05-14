@@ -3,7 +3,7 @@
 --- 'time_zone' domain
 --- ----------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS boolean 
+CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS boolean
     LANGUAGE plpgsql STABLE
     AS $$
     BEGIN
@@ -86,21 +86,21 @@ CREATE TRIGGER on_new_users
 --- -----------------------------------------
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Allow individual read access on 'user_profiles'" 
-    ON user_profiles 
+CREATE POLICY "Allow individual read access on 'user_profiles'"
+    ON user_profiles
     FOR SELECT
     USING      ( auth.uid() = id );
-CREATE POLICY "Allow individual update access on 'user_profiles'" 
-    ON user_profiles 
+CREATE POLICY "Allow individual update access on 'user_profiles'"
+    ON user_profiles
     FOR UPDATE
     USING      ( auth.uid() = id )
     WITH CHECK ( auth.uid() = id );
 CREATE POLICY "Allow (scoped) read access on 'user_profiles' to all users from the same tenant."
     ON user_profiles
-    FOR SELECT 
+    FOR SELECT
     USING ( do_users_share_tenant(id, auth.uid()) );
 CREATE POLICY "Allow (scoped) update access to 'user_profiles' to users with permissions 'profiles.edit'."
-    ON user_profiles 
-    FOR UPDATE 
+    ON user_profiles
+    FOR UPDATE
     USING      ( do_users_share_tenant(id, auth.uid()) AND jwt_has_permission('profiles.edit') )
     WITH CHECK ( do_users_share_tenant(id, auth.uid()) AND jwt_has_permission('profiles.edit') );
