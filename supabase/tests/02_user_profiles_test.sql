@@ -1,6 +1,6 @@
 
 BEGIN;
-SELECT plan(18);
+SELECT plan(22);
 
 --- -----------------------------------------
 --- Authentication helpers
@@ -162,6 +162,26 @@ SELECT test.login_as_user('user1@test.com');
 UPDATE user_profiles SET title = 'Dear' WHERE id = test.user_id('user2@test.com');
 SELECT is(title, 'Md.', 'Profile editors cannot touch users from another tenant.')
     FROM user_profiles WHERE id = test.user_id('user2@test.com');
+SELECT test.logout();
+
+
+--- -----------------------------------------
+--- Test user profile avatar_url and not-overriding initial values
+--- -----------------------------------------
+INSERT INTO auth.users (id, email) VALUES 
+    (gen_random_uuid(), 'avatar1@test.com');
+INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES 
+    (gen_random_uuid(), 'avatar2@test.com', '{"avatar_url":"https://google.com", "language": "fr"}');
+-- must set defaults
+SELECT is(avatar_url, 'https://www.gravatar.com/avatar/35b937e76448ede2a8682d45f4a1310e?d=mp')
+    FROM user_profiles WHERE id = test.user_id('avatar1@test.com');
+SELECT is(language, 'en-US')
+    FROM user_profiles WHERE id = test.user_id('avatar1@test.com');
+-- must not be overriden
+SELECT is(language, 'fr')
+    FROM user_profiles WHERE id = test.user_id('avatar2@test.com');
+SELECT is(avatar_url, 'https://google.com')
+    FROM user_profiles WHERE id = test.user_id('avatar2@test.com');
 
 
 SELECT * FROM finish();

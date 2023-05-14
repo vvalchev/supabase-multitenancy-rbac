@@ -68,13 +68,31 @@ CREATE TRIGGER on_user_profiles_updated
 --- Creates a new public profile for each registered user.
 --- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION handle_new_user() RETURNS TRIGGER
-  lANGUAGE PLPGSQL SECURITY DEFINER SET search_path = public
+  lANGUAGE plpgsql SECURITY DEFINER SET search_path = public
   AS $$
   BEGIN
       RAISE NOTICE 'New User Profile Created: (%)', NEW.id;
-      INSERT INTO user_profiles (id, avatar_url) VALUES
-          (NEW.id, 'https://www.gravatar.com/avatar/' || md5(new.email) || '?d=mp');
-          RETURN NEW;
+      INSERT INTO user_profiles
+          SELECT * FROM jsonb_populate_record(
+              null::user_profiles,
+              (
+                  --- add default values
+                  jsonb_build_object(
+                    'avatar_url', 'https://www.gravatar.com/avatar/' || md5(NEW.email) || '?d=mp',
+                    'time_zone', 'Europe/London',
+                    'language', 'en-US'
+                  )
+                  --- copy original raw_user_meta_data, allow to override the avatar_url
+                  || coalesce(NEW.raw_user_meta_data, '{}')::jsonb
+                  --- fields that are always overridden and must not be null
+                  || jsonb_build_object(
+                      'id', NEW.id, 
+                      'created_at', now(),
+                      'updated_at', now()
+                  )
+              )
+          );
+      RETURN NEW;
   END;
 $$;
 
