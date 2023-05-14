@@ -48,7 +48,6 @@ CREATE OR REPLACE FUNCTION test.logout() RETURNS void
     BEGIN
         PERFORM set_config('request.jwt.claims', null, true);
         SET role postgres;
-        RAISE NOTICE '---> LOGOUT';
     END;
 $$;
 
