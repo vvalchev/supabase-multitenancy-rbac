@@ -11,7 +11,6 @@ with role-based security access.
 	* There is an enumerated type `app_permissions`:
          * `all`
          * `tenant_members.assign`
-         * `claims.edit`
          * `roles.edit`
          * `roles.assign`
          * `profiles.edit`
@@ -28,7 +27,7 @@ with role-based security access.
 ## Limitations
 
 - Users can be assigned to only one tenant.
-- You cannot assign tenant admin (tenant_access) normally. You have to use database admin/superuser account for that.
+- You cannot assign tenant admin (tenant_access) normally. You have to use a database admin/superuser account for that.
 
 ## Custom Claims
 

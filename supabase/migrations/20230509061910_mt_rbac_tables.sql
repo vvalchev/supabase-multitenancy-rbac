@@ -2,9 +2,8 @@ DROP TYPE IF EXISTS app_permission;
 CREATE TYPE app_permission AS ENUM (
     'all', -- get access to everything, scope: tenant
     'tenant_members.assign',
-    'claims.edit',
-    'roles.edit', -- usually requires 'claims.edit'
-    'roles.assign', -- usually requires 'claims.edit'
+    'roles.edit',
+    'roles.assign',
     'profiles.edit'
 );
 

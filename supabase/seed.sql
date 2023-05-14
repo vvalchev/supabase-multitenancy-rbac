@@ -15,7 +15,7 @@ INSERT INTO roles (id, tenant_id, name, permissions, notes)
         --     'People in this group have access to the whole system and can create/update tenants.'
         -- ),
         (3, 1, 'permission_admins',
-            ARRAY['claims.edit'::app_permission, 'roles.edit'::app_permission, 'roles.assign'::app_permission],
+            ARRAY['roles.edit'::app_permission, 'roles.assign'::app_permission],
             'People in this group can create/edit roles and assign them to users.'
         ),
         (4, 1, 'profile_editors',

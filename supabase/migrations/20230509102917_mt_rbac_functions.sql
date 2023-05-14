@@ -4,19 +4,24 @@
 --- -----------------------------------------
 
 CREATE OR REPLACE FUNCTION jwt_is_expired() RETURNS BOOLEAN
-    LANGUAGE plpgsql
+    LANGUAGE sql STABLE
     AS $$
-    BEGIN
-        RETURN extract(epoch FROM now()) > coalesce(auth.jwt()->>'exp', '0')::numeric;
-    END;
+        SELECT extract(epoch FROM now()) > coalesce(auth.jwt()->>'exp', '0')::numeric;
 $$;
 
+
 CREATE OR REPLACE FUNCTION jwt_get_claim(claim TEXT) RETURNS jsonb
-    LANGUAGE SQL STABLE
+    LANGUAGE sql STABLE
     AS $$
         SELECT coalesce(
             nullif(current_setting('request.jwt.claims', true), '')::jsonb -> 'app_metadata' -> claim, null
         )
+$$;
+
+CREATE OR REPLACE FUNCTION jwt_tenant_id() RETURNS BIGINT
+    LANGUAGE sql STABLE
+    AS $$
+        SELECT coalesce(jwt_get_claim('tenant_id')::bigint, -1);
 $$;
 
 CREATE OR REPLACE FUNCTION jwt_has_permission(perm TEXT, strict BOOLEAN DEFAULT FALSE) RETURNS BOOLEAN
@@ -44,19 +49,17 @@ CREATE OR REPLACE FUNCTION jwt_has_permission(perm TEXT, strict BOOLEAN DEFAULT 
     END;
 $$;
 
-CREATE OR REPLACE FUNCTION jwt_tenant_id() RETURNS BIGINT
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-        RETURN coalesce(jwt_get_claim('tenant_id')::bigint, -1);
-    END;
-$$;
-
 
 --- -----------------------------------------
 --- Claim Management functions
 --- based on https://github.com/supabase-community/supabase-custom-claims
 --- -----------------------------------------
+CREATE OR REPLACE FUNCTION is_claims_admin() RETURNS "bool"
+  LANGUAGE sql STABLE
+  AS $$
+      -- We don't want users to change claims. Our roles and permissions are assigned through tables and triggers.
+      SELECT (session_user != 'authenticator');
+$$;
 
 CREATE OR REPLACE FUNCTION get_claims(uid uuid) RETURNS jsonb
     LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
@@ -64,8 +67,8 @@ CREATE OR REPLACE FUNCTION get_claims(uid uuid) RETURNS jsonb
     DECLARE
         retval jsonb;
     BEGIN
-        IF NOT jwt_has_permission('claims.edit') THEN
-            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is missing "claims.edit" permission.';
+        IF NOT is_claims_admin() THEN
+            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is not allowed to set permission.';
         ELSE
             SELECT raw_app_meta_data
                 FROM auth.users INTO retval
@@ -81,8 +84,8 @@ CREATE OR REPLACE FUNCTION get_claim(uid uuid, claim TEXT) RETURNS jsonb
     DECLARE
         retval jsonb;
     BEGIN
-        IF NOT jwt_has_permission('claims.edit') THEN
-            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is missing "claims.edit" permission.';
+        IF NOT is_claims_admin() THEN
+            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is not allowed to set permission.';
         ELSE
             SELECT coalesce(raw_app_meta_data->claim, null)
                 FROM auth.users INTO retval
@@ -96,8 +99,8 @@ CREATE OR REPLACE FUNCTION set_claim(uid uuid, claim TEXT, value jsonb) RETURNS 
     LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
     AS $$
     BEGIN
-        IF NOT jwt_has_permission('claims.edit') THEN
-            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is missing "claims.edit" permission.';
+        IF NOT is_claims_admin() THEN
+            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is not allowed to set permission.';
         ELSE
             UPDATE auth.users
                 SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || json_build_object(claim, value)::jsonb
@@ -111,8 +114,8 @@ CREATE OR REPLACE FUNCTION delete_claim(uid uuid, claim TEXT) RETURNS BOOLEAN
     LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
     AS $$
     BEGIN
-        IF NOT jwt_has_permission('claims.edit') THEN
-            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is missing "claims.edit" permission.';
+        IF NOT is_claims_admin() THEN
+            RAISE EXCEPTION 'access denied' USING HINT = 'The current user is not allowed to set permission.';
         ELSE
             UPDATE auth.users
                 SET raw_app_meta_data = raw_app_meta_data - claim
@@ -142,7 +145,7 @@ CREATE OR REPLACE FUNCTION trigger_set_updated_at() RETURNS TRIGGER
 $$;
 
 CREATE OR REPLACE FUNCTION do_users_share_tenant(id1 uuid, id2 uuid) RETURNS BOOLEAN 
-    LANGUAGE SQL SECURITY DEFINER
+    LANGUAGE sql SECURITY DEFINER SET search_path = public
     AS $$
     SELECT
         EXISTS(
@@ -158,7 +161,7 @@ CREATE OR REPLACE FUNCTION do_users_share_tenant(id1 uuid, id2 uuid) RETURNS BOO
 $$;
 
 CREATE OR REPLACE FUNCTION is_role_in_tenant(role_id BIGINT, tenant_id BIGINT) RETURNS BOOLEAN
-    LANGUAGE SQL SECURITY DEFINER
+    LANGUAGE sql SECURITY DEFINER SET search_path = public
     AS $$
     SELECT EXISTS (
         SELECT 1 

@@ -34,9 +34,9 @@ SELECT is(raw_app_meta_data -> 'tenant_id',  '1')
 SELECT isnt(raw_app_meta_data, null)
     FROM auth.users WHERE email = 'user1@test.com';
 -- To compare JSON arrays use: A contains B and B contains A 
-SELECT ok(raw_app_meta_data -> 'perms' <@ jsonb_build_array('claims.edit','roles.edit', 'roles.assign'))
+SELECT ok(raw_app_meta_data -> 'perms' <@ jsonb_build_array('roles.edit', 'roles.assign'))
     FROM auth.users WHERE email = 'user1@test.com';
-SELECT ok(raw_app_meta_data -> 'perms' @> jsonb_build_array('claims.edit','roles.edit', 'roles.assign'))
+SELECT ok(raw_app_meta_data -> 'perms' @> jsonb_build_array('roles.edit', 'roles.assign'))
     FROM auth.users WHERE email = 'user1@test.com';
 
 --- -----------------------------------------
