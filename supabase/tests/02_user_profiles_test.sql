@@ -54,5 +54,9 @@ UPDATE user_profiles SET first_name = null;
 SELECT ok(raw_user_meta_data -> 'first_name' IS NULL)
     FROM auth.users LIMIT 1;
 
+--- -----------------------------------------
+--- TODO: Test 'profile_editors' permission
+--- -----------------------------------------
+
 SELECT * FROM finish();
 ROLLBACK;

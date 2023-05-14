@@ -39,14 +39,14 @@ CREATE POLICY "Allow insert, update, delete access on 'tenants' to operators to 
 CREATE POLICY "Allow (scoped) read access on 'tenant_members' to all users from the same tenant."
     ON tenant_members
     FOR SELECT
-    USING ( jwt_get_claim('tenant_id')::bigint = tenant_id);
+    USING ( jwt_tenant_id() = tenant_id);
 
 CREATE POLICY "Allow (scoped) insert, update, delete access to 'tenant_members' to users with permissions 'tenant_members.assign'."
     ON tenant_members
     FOR ALL
-    USING      (     jwt_get_claim('tenant_id')::bigint = tenant_id
+    USING      (     jwt_tenant_id() = tenant_id
                  AND jwt_has_permission('tenant_members.assign') )  -- for delete
-    WITH CHECK (     jwt_get_claim('tenant_id')::bigint = tenant_id
+    WITH CHECK (     jwt_tenant_id() = tenant_id
                  AND jwt_has_permission('tenant_members.assign') ); -- for insert/update
 
 --- -----------------------------------------
@@ -60,25 +60,14 @@ CREATE POLICY "Allow (scoped) read access on 'roles' to all users from the same 
 CREATE POLICY "Allow (scoped) insert, update, delete access to 'roles' to users with permissions 'roles.edit'."
     ON roles
     FOR ALL
-    USING      ( jwt_get_claim('tenant_id')::bigint = tenant_id
+    USING      ( jwt_tenant_id() = tenant_id
                  AND jwt_has_permission('roles.edit') )  -- for delete
-    WITH CHECK ( jwt_get_claim('tenant_id')::bigint = tenant_id
+    WITH CHECK ( jwt_tenant_id() = tenant_id
                  AND jwt_has_permission('roles.edit') ); -- for insert/update
 
 --- -----------------------------------------
 --- user_roles table policy
 --- -----------------------------------------
-CREATE OR REPLACE FUNCTION check_role_in_current_tenant(role_id BIGINT)  RETURNS BOOLEAN
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-        RETURN EXISTS (
-            SELECT 1 FROM roles
-                WHERE roles.id = role_id AND roles.tenant_id = jwt_get_claim('tenant_id')::bigint
-        );
-    END
-$$;
-
 CREATE POLICY "Allow (scoped) read access on 'user_roles' to all users from the same tenant."
     ON user_roles
     FOR SELECT
@@ -87,6 +76,10 @@ CREATE POLICY "Allow (scoped) read access on 'user_roles' to all users from the 
 CREATE POLICY "Allow (scoped) insert, update, delete access to 'user_roles' to users with permissions 'roles.assign'."
     ON user_roles
     FOR ALL
-    USING      ( is_role_in_tenant(role_id, jwt_tenant_id()) AND jwt_has_permission('roles.assign') )  -- for delete
-    WITH CHECK ( is_role_in_tenant(role_id, jwt_tenant_id()) AND jwt_has_permission('roles.assign') ); -- for insert/update
+    USING      ( do_users_share_tenant(auth.uid(), user_id) 
+                 AND is_role_in_tenant(role_id, jwt_tenant_id()) 
+                 AND jwt_has_permission('roles.assign') )  -- for delete
+    WITH CHECK ( do_users_share_tenant(auth.uid(), user_id)
+                 AND is_role_in_tenant(role_id, jwt_tenant_id())
+                 AND jwt_has_permission('roles.assign') ); -- for insert/update
 
