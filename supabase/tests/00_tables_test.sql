@@ -7,7 +7,7 @@ SELECT plan(19);
 --- Check table structure
 --- -----------------------------------------
 SELECT has_table('public', 'tenants', 'tenants table exists');
-SELECT columns_are('public', 'tenants', array ['id', 'name', 'notes'],
+SELECT columns_are('public', 'tenants', array ['id', 'name', 'notes', 'members_email_regex'],
                    'tenants table should have the correct columns');
 SELECT has_table('public', 'user_roles', 'user_roles table exists');
 SELECT columns_are('public', 'user_roles', array ['user_id', 'role_id'],

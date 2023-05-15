@@ -1,6 +1,6 @@
 
 BEGIN;
-SELECT plan(12);
+SELECT plan(13);
 
 --- -----------------------------------------
 --- Insert some test data
@@ -76,6 +76,16 @@ SELECT is(raw_app_meta_data -> 'perms',  null)
 DELETE FROM tenant_members WHERE user_id = (select id from auth.users where email = 'user1@test.com');
 SELECT is(raw_app_meta_data -> 'tenant_id',  null)
     FROM auth.users WHERE email = 'user1@test.com';
+
+--- -----------------------------------------
+--- Test 'handle_auto_assign_user' trigger: delete
+--- -----------------------------------------
+INSERT INTO tenants (id, name, members_email_regex) 
+    OVERRIDING SYSTEM VALUE
+    VALUES (11, 'developer', '^.*@test.com$');
+    INSERT INTO auth.users (id, email) VALUES (gen_random_uuid(), 'test@test.com');
+SELECT is(COUNT(*), 1::bigint, 'user is added as a member')
+    FROM tenant_members WHERE tenant_id = 11;
 
 
 SELECT * FROM finish();

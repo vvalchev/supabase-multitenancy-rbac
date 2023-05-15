@@ -78,3 +78,29 @@ DROP TRIGGER IF EXISTS on_role_change ON roles;
 CREATE TRIGGER on_role_change
     AFTER UPDATE OR DELETE ON roles
     FOR EACH ROW EXECUTE FUNCTION handle_role_change();
+
+--- ----------------------------------------------------------------------------
+--- Automatically assign the user to a tenant, based on email rule
+--- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION handle_auto_assign_user() RETURNS TRIGGER
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+        T record;
+    BEGIN
+        -- loop through all tenants with auto-assign feature set
+        FOR T IN SELECT DISTINCT id, members_email_regex FROM tenants WHERE members_email_regex IS NOT NULL
+        LOOP
+            -- use case-insensitive match for emails
+            IF NEW.email ~* T.members_email_regex THEN
+              INSERT INTO tenant_members (user_id, tenant_id) VALUES (NEW.id, T.id);
+              EXIT;
+            END IF;
+        END LOOP;
+        return null;
+    END;
+$$;
+
+CREATE TRIGGER on_new_user1
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION handle_auto_assign_user();

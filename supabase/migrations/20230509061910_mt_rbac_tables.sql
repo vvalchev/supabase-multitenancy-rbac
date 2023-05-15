@@ -15,13 +15,15 @@ COMMENT ON TYPE app_permission IS 'Enumeration of all available application perm
 --    read: tenants.read
 --    create, update, delete: tenants.edit
 CREATE TABLE tenants (
-    id             BIGINT GENERATED ALWAYS AS IDENTITY (INCREMENT BY 50 START 50) PRIMARY KEY,
-    name           TEXT UNIQUE NOT NULL CHECK (name ~ '^[a-z]{3,10}$'),
-    notes          TEXT
+    id                  BIGINT GENERATED ALWAYS AS IDENTITY (INCREMENT BY 50 START 50) PRIMARY KEY,
+    name                TEXT UNIQUE NOT NULL CHECK (name ~ '^[a-z]{3,10}$'),
+    members_email_regex TEXT,
+    notes               TEXT
 );
 COMMENT ON TABLE tenants IS 'Contains all available tenants.';
 COMMENT ON COLUMN tenants.id IS 'Tenant unique identifier. This identifier is usually referred by every other table, that contains tenant-specific data.';
 COMMENT ON COLUMN tenants.name IS 'Tenant short name. This field can contain only lowercase symbols and should be 3 to 10 symbols in length. It might be used as a subdomain name.';
+COMMENT ON COLUMN tenants.members_email_regex IS 'A regular expression, that is matched against every new user. If the email matches, it is automatically assigned to the first matching tenant.';
 COMMENT ON COLUMN tenants.notes IS 'Additional notes about the tenant.';
 
 
