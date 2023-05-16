@@ -48,6 +48,20 @@ inside JWT claims. So the permission is removed the user will keep having the pe
 One significant difference is that the roles and permissions are managed by a table, not by calling the `set_claim`
 function. Roles update is achieved through the usage of triggers.
 
+# The Demo
+
+Go to `demo` folder.
+
+1. run `npm install` (only once)
+2. Configure your instance with the command below. Just make sure to change the key.
+```
+cat << EOF > .env.local
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_ANON_KEY=<your_key>
+EOF
+````
+3. run `npm run dev`
+4. run `open http://localhost:5173/`
 
 # References
 * https://www.tangramvision.com/blog/hands-on-with-postgresql-authorization-part-2-row-level-security

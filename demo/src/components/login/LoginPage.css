@@ -1,0 +1,12 @@
+/* match supabase auth ui to pico.css styling*/
+div[direction='horizontal'].supabase-auth-ui_ui-container {
+  display: flex;
+  gap: 10px;
+}
+.supabase-auth-ui_ui-button > svg {
+  fill: black;
+}
+.supabase-auth-ui_ui-anchor {
+  text-align: center;
+  display: block;
+}

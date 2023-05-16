@@ -1,0 +1,31 @@
+{
+  "name": "demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@picocss/pico": "^1.5.10",
+    "@supabase/auth-helpers-react": "^0.3.1",
+    "@supabase/auth-helpers-shared": "^0.3.4",
+    "@supabase/auth-ui-react": "^0.4.2",
+    "@supabase/supabase-js": "^2.22.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.11.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^4.0.0",
+    "prettier": "2.8.8",
+    "rollup-plugin-includepaths": "^0.2.4",
+    "sass": "^1.62.1",
+    "vite": "^4.3.2"
+  }
+}
