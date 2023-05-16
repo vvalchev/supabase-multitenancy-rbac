@@ -83,7 +83,7 @@ CREATE TRIGGER on_role_change
 --- Automatically assign the user to a tenant, based on email rule
 --- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION handle_auto_assign_user() RETURNS TRIGGER
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql SECURITY DEFINER SET search_path = 'public'
     AS $$
     DECLARE
         T record;
@@ -100,6 +100,7 @@ CREATE OR REPLACE FUNCTION handle_auto_assign_user() RETURNS TRIGGER
         return null;
     END;
 $$;
+
 
 CREATE TRIGGER on_new_user1
     AFTER INSERT ON auth.users
