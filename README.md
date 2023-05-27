@@ -64,12 +64,18 @@ EOF
 4. run `open http://localhost:5173/`
 
 # References
-* https://www.tangramvision.com/blog/hands-on-with-postgresql-authorization-part-2-row-level-security
-* https://github.com/supabase/gotrue/issues/80#issuecomment-1507168133
-* https://www.thenile.dev/blog/multi-tenant-rls
-* https://blog.mansueli.com/using-custom-claims-testing-rls-with-supabase
-* https://github.com/lyqht/awesome-supabase
-* https://usebasejump.com/blog/testing-on-supabase-with-pgtap
-* https://medium.com/@jimmyruann/row-level-security-custom-permission-base-authorization-with-supabase-91389e6fc48c
-* https://dev.to/supabase/supabase-custom-claims-34l2
-* https://github.com/GaryAustin1/RLS-Perfomance
+
+* Related materials
+    * https://www.tangramvision.com/blog/hands-on-with-postgresql-authorization-part-2-row-level-security
+    * https://www.thenile.dev/blog/multi-tenant-rls
+    * https://blog.mansueli.com/using-custom-claims-testing-rls-with-supabase
+    * https://medium.com/@jimmyruann/row-level-security-custom-permission-base-authorization-with-supabase-91389e6fc48c
+    * https://dev.to/supabase/supabase-custom-claims-34l2
+* Useful resources
+    * https://github.com/GaryAustin1/RLS-Perfomance
+    * https://supabase-sql.vercel.app
+    * https://github.com/lyqht/awesome-supabase
+    * https://usebasejump.com/blog/testing-on-supabase-with-pgtap
+* Future improvements
+    * https://github.com/supabase/gotrue/issues/80#issuecomment-1507168133
+
