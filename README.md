@@ -72,3 +72,4 @@ EOF
 * https://usebasejump.com/blog/testing-on-supabase-with-pgtap
 * https://medium.com/@jimmyruann/row-level-security-custom-permission-base-authorization-with-supabase-91389e6fc48c
 * https://dev.to/supabase/supabase-custom-claims-34l2
+* https://github.com/GaryAustin1/RLS-Perfomance
